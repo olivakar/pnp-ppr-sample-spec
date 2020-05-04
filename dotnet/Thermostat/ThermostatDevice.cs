@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.Devices.Client;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Thermostat.PnPInterfaces;
@@ -48,6 +49,20 @@ namespace Thermostat
             });
         }
 
+        private async Task ProcessTempUpdateAsync(double targetTemp)
+        {
+            // gradually increase current temp to target temp
+            double step = (targetTemp - tempSensor.CurrentTemperature) / 10d;
+            for (int i = 9; i >= 0; i--)
+            {
+                tempSensor.CurrentTemperature = targetTemp - step * (double)i;
+                await tempSensor.SendTelemetryValueAsync(tempSensor.CurrentTemperature);
+                await tempSensor.ReportCurrentTemperatureAsync(tempSensor.CurrentTemperature);
+                await Task.Delay(1000);
+            }
+        }
+
+
         private void Diag_OnRebootCommand(object sender, RebootCommandEventArgs e)
         {
             tempSensor.CurrentTemperature = 0;
@@ -59,14 +74,15 @@ namespace Thermostat
             Task.Run(async () => { await tempSensor.ReadDesiredPropertiesAsync(); });
         }
 
-        private void TempSensor_OnTargetTempReceived(object sender, TargetTempUpdatedEventArgs ea)
+        private void TempSensor_OnTargetTempReceived(object sender, TemperatureEventArgs ea)
         {
-            _logger.LogWarning("TargetTempUpdated: " + ea.TargetTemperature);
+            _logger.LogWarning("TargetTempUpdated: " + ea.Temperature);
+            Task.Run(async () => { await this.ProcessTempUpdateAsync(ea.Temperature);  });
         }
 
-        private void TempSensor_OnCurrentTempUpdated(object sender, TargetTempUpdatedEventArgs ea)
+        private void TempSensor_OnCurrentTempUpdated(object sender, TemperatureEventArgs ea)
         {
-            _logger.LogInformation("CurrentTempUpdated: " + ea.TargetTemperature);
+            _logger.LogInformation("CurrentTempUpdated: " + ea.Temperature);
         }
 
 

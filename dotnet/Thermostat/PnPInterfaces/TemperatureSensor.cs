@@ -2,22 +2,18 @@
 using Microsoft.Azure.Devices.Shared;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Thermostat.PnPInterfaces
 {
-    public class TargetTempUpdatedEventArgs : EventArgs
+    public class TemperatureEventArgs : EventArgs
     {
-        public TargetTempUpdatedEventArgs(double t, bool completed = false)
+        public TemperatureEventArgs(double t)
         {
-            TargetTemperature = t;
-            TargetTemperatureCompleted = completed;
+            Temperature = t;
         }
-        public double TargetTemperature { get;}
-        public bool TargetTemperatureCompleted { get; }
+        public double Temperature { get;}
     }
 
     class TemperatureSensor 
@@ -26,10 +22,10 @@ namespace Thermostat.PnPInterfaces
         DeviceClient client;
         string componentName;
         
-        public event EventHandler<TargetTempUpdatedEventArgs> OnTargetTempReceived;
-        public event EventHandler<TargetTempUpdatedEventArgs> OnCurrentTempUpdated;
+        public event EventHandler<TemperatureEventArgs> OnTargetTempReceived;
+        public event EventHandler<TemperatureEventArgs> OnCurrentTempUpdated;
 
-        public double CurrentTemperature = 0d;
+        private double currentTemperature = 0d;
 
         public TemperatureSensor(DeviceClient client, string componentName)
         {
@@ -40,14 +36,23 @@ namespace Thermostat.PnPInterfaces
 #pragma warning restore CS0618 // Type or member is obsolete
         }
 
+        public double CurrentTemperature
+        {
+            get { return currentTemperature; }
+            set
+            {
+                currentTemperature = value;
+                OnCurrentTempUpdated?.Invoke(this, new TemperatureEventArgs(currentTemperature));
+            }
+        }
+
         public async Task ReadDesiredPropertiesAsync()
         {
             var twin = await client.GetTwinAsync();
             var targetValue = GetPropertyValueIfFound(twin.Properties.Desired, "targetTemperature");
             if (double.TryParse(targetValue, out double targetTemp))
             {
-                OnTargetTempReceived?.Invoke(this, new TargetTempUpdatedEventArgs(targetTemp));
-                await ProcessTempUpdateAsync(targetTemp);
+                OnTargetTempReceived?.Invoke(this, new TemperatureEventArgs(targetTemp));
             }
         }
 
@@ -103,24 +108,11 @@ namespace Thermostat.PnPInterfaces
             string desiredPropertyValue = GetPropertyValueIfFound(desiredProperties, "targetTemperature");
             if (double.TryParse(desiredPropertyValue, out double targetTemperature))
             {
-                OnTargetTempReceived?.Invoke(this, new TargetTempUpdatedEventArgs(targetTemperature));
-                await ProcessTempUpdateAsync(targetTemperature);
+                OnTargetTempReceived?.Invoke(this, new TemperatureEventArgs(targetTemperature));
             }
             await Task.FromResult("done");
         }
 
-        public async Task ProcessTempUpdateAsync(double targetTemp)
-        {
-            // gradually increase current temp to target temp
-            double step = (targetTemp - CurrentTemperature) / 10d;
-            for (int i = 9; i >= 0; i--)
-            {
-                CurrentTemperature = targetTemp - step * (double)i;
-                await SendTelemetryValueAsync(CurrentTemperature);
-                await ReportCurrentTemperatureAsync(CurrentTemperature);
-                OnCurrentTempUpdated?.Invoke(this, new TargetTempUpdatedEventArgs(CurrentTemperature, i==0));
-                await Task.Delay(1000);
-            }
-        }
+       
     }
 }
