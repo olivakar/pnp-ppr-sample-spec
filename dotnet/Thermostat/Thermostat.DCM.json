@@ -1,0 +1,201 @@
+{
+  "@id": "urn:com:examples:Thermostat:1",
+  "@type": "CapabilityModel",
+  "implements": [
+    {
+      "@type": "InterfaceInstance",
+      "displayName": {
+        "en": "Temperature Sensor Instance"
+      },
+      "name": "tempSensor1",
+      "schema": {
+        "@id": "urn:com:examples:TemperatureSensor:1",
+        "@type": "Interface",
+        "displayName": {
+          "en": "Temperature Sensor"
+        },
+        "contents": [
+          {
+            "@type": [
+              "Telemetry",
+              "SemanticType/Temperature"
+            ],
+            "displayName": {
+              "en": "Temperature"
+            },
+            "name": "temperature",
+            "displayUnit": {
+              "en": "F"
+            },
+            "schema": "double",
+            "unit": "Units/Temperature/fahrenheit"
+          },
+          {
+            "@type": [
+              "Property",
+              "SemanticType/Temperature"
+            ],
+            "displayName": {
+              "en": "Target Temperature"
+            },
+            "name": "targetTemperature",
+            "writable": true,
+            "displayUnit": {
+              "en": "F"
+            },
+            "schema": "double",
+            "unit": "Units/Temperature/fahrenheit"
+          }
+        ]
+      }
+    },
+    {
+      "@type": "InterfaceInstance",
+      "displayName": {
+        "en": "Diagnostics Instance"
+      },
+      "name": "diag",
+      "schema": {
+        "@id": "urn:com:examples:Diagnostics:1",
+        "@type": "Interface",
+        "displayName": {
+          "en": "Diagnostics"
+        },
+        "contents": [
+          {
+            "@type": "Telemetry",
+            "displayName": {
+              "en": "Workingset"
+            },
+            "name": "workingset",
+            "displayUnit": {
+              "en": "kb"
+            },
+            "schema": "long"
+          },
+          {
+            "@type": "Command",
+            "commandType": "synchronous",
+            "name": "reboot",
+            "displayName": {
+              "en": "Reboot"
+            },
+            "request": {
+              "@type": "SchemaField",
+              "displayName": {
+                "en": "Delay"
+              },
+              "name": "delay",
+              "schema": "integer"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "@type": "InterfaceInstance",
+      "name": "deviceInfo",
+      "schema": {
+        "@id": "urn:azureiot:DeviceManagement:DeviceInformation:1",
+        "@type": "Interface",
+        "displayName": {
+          "en": "Device information"
+        },
+        "contents": [
+          {
+            "@id": "urn:azureiot:DeviceManagement:DeviceInformation:manufacturer:1",
+            "@type": "Property",
+            "comment": "Company name of the device manufacturer. This could be the same as the name of the original equipment manufacturer (OEM). Ex. Contoso.",
+            "displayName": {
+              "en": "Manufacturer"
+            },
+            "name": "manufacturer",
+            "schema": "string"
+          },
+          {
+            "@id": "urn:azureiot:DeviceManagement:DeviceInformation:model:1",
+            "@type": "Property",
+            "comment": "Device model name or ID. Ex. Surface Book 2.",
+            "displayName": {
+              "en": "Device model"
+            },
+            "name": "model",
+            "schema": "string"
+          },
+          {
+            "@id": "urn:azureiot:DeviceManagement:DeviceInformation:swVersion:1",
+            "@type": "Property",
+            "comment": "Version of the software on your device. This could be the version of your firmware. Ex. 1.3.45",
+            "displayName": {
+              "en": "Software version"
+            },
+            "name": "swVersion",
+            "schema": "string"
+          },
+          {
+            "@id": "urn:azureiot:DeviceManagement:DeviceInformation:osName:1",
+            "@type": "Property",
+            "comment": "Name of the operating system on the device. Ex. Windows 10 IoT Core.",
+            "displayName": {
+              "en": "Operating system name"
+            },
+            "name": "osName",
+            "schema": "string"
+          },
+          {
+            "@id": "urn:azureiot:DeviceManagement:DeviceInformation:processorArchitecture:1",
+            "@type": "Property",
+            "comment": "Architecture of the processor on the device. Ex. x64 or ARM.",
+            "displayName": {
+              "en": "Processor architecture"
+            },
+            "name": "processorArchitecture",
+            "schema": "string"
+          },
+          {
+            "@id": "urn:azureiot:DeviceManagement:DeviceInformation:processorManufacturer:1",
+            "@type": "Property",
+            "comment": "Name of the manufacturer of the processor on the device. Ex. Intel.",
+            "displayName": {
+              "en": "Processor manufacturer"
+            },
+            "name": "processorManufacturer",
+            "schema": "string"
+          },
+          {
+            "@id": "urn:azureiot:DeviceManagement:DeviceInformation:totalStorage:1",
+            "@type": "Property",
+            "comment": "Total available storage on the device in kilobytes. Ex. 2048000 kilobytes.",
+            "displayName": {
+              "en": "Total storage"
+            },
+            "name": "totalStorage",
+            "displayUnit": {
+              "en": "kilobytes"
+            },
+            "schema": "long"
+          },
+          {
+            "@id": "urn:azureiot:DeviceManagement:DeviceInformation:totalMemory:1",
+            "@type": "Property",
+            "comment": "Total available memory on the device in kilobytes. Ex. 256000 kilobytes.",
+            "displayName": {
+              "en": "Total memory"
+            },
+            "name": "totalMemory",
+            "displayUnit": {
+              "en": "kilobytes"
+            },
+            "schema": "long"
+          }
+        ]
+      }
+    }
+  ],
+  "displayName": {
+    "en": "Thermostat"
+  },
+  "@context": [
+    "http://azureiot.com/v1/contexts/IoTModel.json"
+  ]
+}

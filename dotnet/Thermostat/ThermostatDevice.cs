@@ -20,12 +20,13 @@ namespace Thermostat
         {
             _quitSignal = cancellationToken;
             _logger = logger;
-            _logger.LogInformation(connectionString);
-            deviceClient = DeviceClient.CreateFromConnectionString(connectionString, TransportType.Mqtt);
+            //_logger.LogInformation(connectionString);
+            //deviceClient = DeviceClient.CreateFromConnectionString(connectionString, TransportType.Mqtt);
         }
 
         public async Task RunDeviceAsync()
         {
+            deviceClient = await DPSConnection.Connect("0ne000C660F", "themorstat-ppr", "XV9zQ+KPsfYcSECcKm45aLZhKKXbxtdSdjxMpzMqd3U=", "urn:com:examples:Thermostat:1");
             var deviceInfo = new DeviceInformationInterface(deviceClient, "deviceInfo");
             var diag = new DiagnosticsInterface(deviceClient, "diag");
             tempSensor = new TemperatureSensor(deviceClient, "tempSensor1");
