@@ -8,6 +8,14 @@
   "contents": [
     {
       "@type": "Property",
+      "displayName": "Current Temperature",
+      "description": "Reported temperature from device.",
+      "name": "currentTemperature",
+      "schema": "double",
+      "writable": false
+    },
+    {
+      "@type": "Property",
       "displayName": "Target Temperature",
       "description": "Desired temperature to configure remotely.",
       "name": "targetTemperature",
