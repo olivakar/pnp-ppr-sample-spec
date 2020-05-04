@@ -30,15 +30,13 @@ namespace Thermostat
             var diag = new DiagnosticsInterface(deviceClient, "diag");
             tempSensor = new TemperatureSensor(deviceClient, "tempSensor1");
 
+            diag.OnRebootCommand += Diag_OnRebootCommand;
             await deviceInfo.ReportDeviceInfoPropertiesAsync(ThisDeviceInfo);
 
-            await tempSensor.ReadDesiredPropertiesAsync();
             tempSensor.OnCurrentTempUpdated += TempSensor_OnCurrentTempUpdated;
             tempSensor.OnTargetTempReceived += TempSensor_OnTargetTempReceived;
-            await Task.Run(async () => { await tempSensor.ProcessTempUpdateAsync(21); });
+            await tempSensor.ReadDesiredPropertiesAsync();
 
-
-            diag.OnRebootCommand += Diag_OnRebootCommand;
             await Task.Run(async () =>
             {
                 while (!_quitSignal.IsCancellationRequested)
@@ -53,9 +51,10 @@ namespace Thermostat
         private void Diag_OnRebootCommand(object sender, RebootCommandEventArgs e)
         {
             tempSensor.CurrentTemperature = 0;
-            for (int i = 0; i < e.Delay+1; i++)
+            for (int i = 0; i < e.Delay; i++)
             {
                 _logger.LogWarning("================> REBOOT COMMAND RECEIVED <===================");
+                Task.Delay(1000).Wait();
             }
             Task.Run(async () => { await tempSensor.ReadDesiredPropertiesAsync(); });
         }
@@ -70,11 +69,6 @@ namespace Thermostat
             _logger.LogInformation("CurrentTempUpdated: " + ea.TargetTemperature);
         }
 
-        private Task<MethodResponse> RebootCommandHandler(MethodRequest req, object objContext)
-        {
-            _logger.LogWarning("================> REBOOT COMMAND RECEIVED <===================");
-            return Task.FromResult(new MethodResponse(200));
-        }
 
         DeviceInfo ThisDeviceInfo
         {

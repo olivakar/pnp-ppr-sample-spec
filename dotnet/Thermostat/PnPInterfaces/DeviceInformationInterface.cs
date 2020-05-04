@@ -38,8 +38,8 @@ namespace Thermostat.PnPInterfaces
             {
                 manufacturer = new { value = di.Manufacturer },
                 model = new { value = di.Model },
-                softwareVersion = new { value = di.SoftwareVersion },
-                operatingSystemName = new { value = di.OperatingSystemName },
+                swVersion = new { value = di.SoftwareVersion },
+                osName = new { value = di.OperatingSystemName },
                 processorArchitecture = new { value = di.ProcessorArchitecture },
                 processorManufacturer = new { value = di.ProcessorManufacturer },
                 totalMemory = new { value = di.TotalMemory },
